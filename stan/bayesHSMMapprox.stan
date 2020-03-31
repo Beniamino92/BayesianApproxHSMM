@@ -151,8 +151,8 @@ data {
   
   real mu_0[K]; // prior mean gauss emis
   real sigma_0; // prior sd      ""
-  real<lower = 0> a_0;  // prior rate pois dwell
-  real<lower = 0> b_0; //         ""
+  real<lower = 0> a_0[K];  // prior rate pois dwell
+  real<lower = 0> b_0[K]; //         ""
   real<lower = 0> alpha_0; // prior dirichlet probs
 }
 

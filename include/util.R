@@ -1,6 +1,5 @@
-# generate gaussian HSSM with poisson duration
+# generate HSSM with poisson duration
 gauss.HSMM.generate_sample <- function(N, parms)
-  
 {
   K <- parms$K
   lambda <- parms$lambda
@@ -8,13 +7,13 @@ gauss.HSMM.generate_sample <- function(N, parms)
   sigma <- parms$sigma
   gamma <- parms$gamma
   delta <- parms$delta
-  
   if(is.null(delta))  delta <- solve(t(diag(K)-gamma + 1), rep(1,K))
+  
   state_seq = c()
   observations = c()
   state = 1
   while (length(state_seq) < N) {
-    duration = rpois(1, lambda[state])
+    duration = rpois(1, lambda[state]) + 1
     state_seq = c(state_seq, rep(state, duration))
     obs  = rnorm(duration, mu[state], sigma[state])
     observations = c(observations, obs)
@@ -97,7 +96,11 @@ update.gauss.emission <- function(m, obs, fb)
   
   for (j in 2:(K+1)) {
     idx = (cm[j - 1]+1):cm[j]
-    u = colSums(exp(la[idx, ] + lb[idx, ] - llk))
+    if (m[j-1] == 1) {
+      u = exp(la[idx, ] + lb[idx, ] - llk)
+    } else {
+      u = colSums(exp(la[idx, ] + lb[idx, ] - llk))
+    }
     mu.next[j-1] <- sum(u*obs)/sum(u)
     sigma.next[j-1] <- sqrt(sum(((obs - mu.next[j-1])^2)*u)/sum(u))
   }
@@ -265,20 +268,17 @@ HSMM.mllk <- function(obs, m, lambda, mu, sigma, gamma)
 
 # ordinary pseudo residuals + plot, qqplot and hist
 #  (see Zucchini et al., p.96)
-HSMM.pseudo_residuals <- function(obs, m, lambda, mu, sigma, gamma,
-                                  delta = NULL, xrange = NULL, plt = TRUE)
+HSMM.pseudo_residuals <- function(obs, m, lambda, mu, sigma, gamma, xrange = NULL, plt = TRUE)
 {
   N <- length(obs)
   K <- length(m)
   
-  if(is.null(delta))
-    delta <- solve(t(diag(K)-gamma+1),rep(1,K))
   if(is.null(xrange))
     xrange <- seq(from = qnorm(0.001, min(mu), max(sigma)),
                   to = qnorm(0.999, max(mu), max(sigma)), len = 5e2)
   
   cdists <- HSMM.conditionals(obs, m, lambda, mu, sigma, gamma,
-                                    delta = NULL, xrange = xrange)$cdists
+                              xrange = xrange)$cdists
   cumdists <- rbind(rep(0, N), apply(cdists, 2, cumsum))
   u <- rep(NA, N)
   for (t in 1:N) {
@@ -306,19 +306,18 @@ HSMM.pseudo_residuals <- function(obs, m, lambda, mu, sigma, gamma,
 
 
 # full conditionals observations (see Zucchini et al., p.76)
-HSMM.conditionals <- function(obs, m, lambda, mu, sigma, gamma, delta = NULL, xrange = NULL)
+HSMM.conditionals <- function(obs, m, lambda, mu, sigma, gamma, xrange = NULL)
 {
   
   N <- length(obs)
   M <- sum(m)
   K <- length(m)
-  if(is.null(delta))
-    delta <- solve(t(diag(K)-gamma+1),rep(1,K))
   if(is.null(xrange))
-    xrange <- qnorm(0.001, min(mu), 
-                    max(sigma)):qnorm(0.999, max(mu), max(sigma))
+    xrange <- seq(from = qnorm(0.001, min(mu), max(sigma)),
+                  to = qnorm(0.999, max(mu), max(sigma)), len = 5e2)
   
   B <- B.matrix_poisson(K, m, gamma, lambda)
+  delta <- solve(t(diag(M)-B+1),rep(1,M))
   allprobs_aggr <- get.gauss.emission_aggr(obs, m, mu, sigma)
   fb <- forward_backwards.aggr(obs, m, allprobs_aggr, lambda,  gamma)
   la <- fb$la
@@ -360,14 +359,15 @@ HSMM.viterbi <- function(obs, m, lambda, mu, sigma, gamma, draw = FALSE, plt = F
   }
   z_star <- numeric(N)
   
-  # - Maximizing
+  # - Resampling
   if (draw == TRUE) {
     z_star[N] <- sample(1:M, size = 1, prob = xi[N, ])
     for (t in (N-1):1) {
       z_star[t] <- sample(1:M, size = 1, prob = B[, z_star[t+1]] * xi[t, ])
     }
   }
-  # - Resampling
+  
+  # - Maximizing
   else {
     z_star[N] <- which.max(xi[N, ])
     for (t in (N-1):1) {
@@ -414,8 +414,10 @@ c.hazard.dwell_poisson <- function(r, lambda)
 B.ii_poisson <- function(m_i, lambda_i) 
 {
   B_ii = matrix(0, m_i, m_i)
-  for (i in 1:(m_i - 1)) {
-    B_ii[i, i+1] = 1 - c.hazard.dwell_poisson(i, lambda_i)
+  if (m_i != 1) {
+    for (i in 1:(m_i - 1)) {
+      B_ii[i, i+1] = 1 - c.hazard.dwell_poisson(i, lambda_i)
+    }
   }
   B_ii[m_i, m_i] = 1-c.hazard.dwell_poisson(m_i, lambda_i)
   
@@ -513,11 +515,11 @@ gamma.init <- function(K)
 
 # init all pars ECM/MLE 
 # (might need to write something 'automatic' for lambda)
-pars.init <- function(obs, K)
+HSMM.init <- function(obs, K, lambda0)
 {
   emis_init <- emis.init(obs, K)
   pars <- c()
-  pars$lambda <- rep(10, K)
+  pars$lambda <- lambda0
   pars$mu <- emis_init$mu
   pars$sigma <- emis_init$sigma
   pars$gamma <- gamma.init(K)
@@ -544,7 +546,8 @@ HSMM.mle <- function(K, obs, parms_init)
 }
 
 # aux llk fun for MLE (approx) HSMM
-HSMM.mllk.aux <- function(parvect, obs, m) {
+HSMM.mllk.aux <- function(parvect, obs, m) 
+{
   
   N <- length(obs)
   M <- sum(m)
@@ -603,3 +606,5 @@ HSMM.pw2pn <- function(K, parvect)
   list(lambda = lambda, mu = mu, sigma = sigma,
        gamma = gamma)
 }
+
+

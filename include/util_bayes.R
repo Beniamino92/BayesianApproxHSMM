@@ -1,3 +1,12 @@
+# starting values STAN. 
+HSMM.init.stan <- function(K, obs, lambda0) 
+{
+  out <- emis.init(obs, K)
+  out$lambda <- lambda0
+  out
+}
+
+
 #  simplex to tpm 
 a_to_mat <- function(a) 
 {
@@ -52,7 +61,7 @@ HSMM.trace.mllk <- function(sims, plt = FALSE)
 }
 
 # predictive accuracy measures: AIC, BIC, DIC, WAIC (see BDA Ch.7)
-HSMM.performance <- function(sims, obs, m) 
+HSMM.stan.performance <- function(sims, obs, m) 
 {
   lambda_sims <- sims$lambda
   mu_sims <- sims$mu
@@ -139,7 +148,7 @@ HSMM.predictive.plot <- function(sims, obs, m, ndraw = 100)
   gamma.hat <- apply(gamma_sims, c(1, 2), mean)
   
   z_star <- HSMM.viterbi(obs, m, lambda.hat, mu.hat, 
-                         sigma.hat, gamma.hat, draw = TRUE)
+                         sigma.hat, gamma.hat, draw = FALSE)
   indxs <- sample(length(y_hat), ndraw, replace = FALSE)
   plot(obs, type = "n", ylab = "Observations", 
        xlab = "Time", ylim = c(min(obs) - 3, max(obs) + 3))
@@ -147,6 +156,7 @@ HSMM.predictive.plot <- function(sims, obs, m, ndraw = 100)
     lines(y_hat[[i]], col = "gray85")
   }
   points(1:N, obs, pch = 20, cex = 0.6, col = z_star)
+  
 }
 
 
@@ -171,5 +181,4 @@ HSMM.transitions.hist <- function(gamma_sims)
   }
   par(mfrow = c(1, 1))
 }
-
 
