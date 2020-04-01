@@ -19,7 +19,7 @@ library("bridgesampling")
 # setwd("C:/Users/JeJewson/Documents/Barcelona_Yr1/bennisCode")
 # setwd("C:/Users/Rachel Wilkerson/Documents/JackFiles")
 setwd("/Users/beniamino/Desktop/HSMM_Project/Temp/")
-source("include/util_unstructuredGeometric.R")
+source.all("include/")
 
 rstan_options(auto_write = TRUE)
 ```
@@ -72,20 +72,16 @@ parms_init$gamma <- matrix(c(0, 0.5, 0.5,
 
 K <- 3
 m.3 <- m
-EM.3 <- HSMM.ECM(K, 
-                m.3,  
-                obs, 
-                parms_init,
-                niter = 3e2)
+EM.3 <- HSMM.ECM.geom(K, m.3, obs, parms_init, niter = 3e2)
 
 ```
 
 ```{r Frequentist_MLE_diag, include=TRUE,echo=TRUE, eval=TRUE,cache=TRUE,results='hide'}
 
 cat("mllk:", EM.3$mllk, " AIC:", EM.3$AIC, " BIC:", EM.3$BIC, "\n")
-EM.3_pseudo_residuals <- HSMM.pseudo_residuals(obs, m.3, EM.3$theta_simplex_vec, 
+EM.3_pseudo_residuals <- HSMM.pseudo_residuals.geom(obs, m.3, EM.3$theta_simplex_vec, 
                       EM.3$mu, EM.3$sigma, EM.3$gamma, plt = TRUE)
-EM.3_viterbi <- HSMM.viterbi(obs, m.3, EM.3$theta_simplex_vec, EM.3$mu, EM.3$sigma, EM.3$gamma, plt = TRUE)
+EM.3_viterbi <- HSMM.viterbi.geom(obs, m.3, EM.3$theta_simplex_vec, EM.3$mu, EM.3$sigma, EM.3$gamma, plt = TRUE)
 
 
 EM.3$mu
@@ -223,7 +219,7 @@ parms_init$gamma <- matrix(c(0, 1,
 
 
 
-EM.2m1 <- HSMM.ECM(K, 
+EM.2m1 <- HSMM.ECM.geom(K, 
                 m = m.2m1, 
                 obs = data, 
                 parms_init,
@@ -236,9 +232,9 @@ EM.2m1 <- HSMM.ECM(K,
 ```{r Frequentist_MLE_m1_diag, include=TRUE,echo=TRUE, eval=TRUE,cache=TRUE}
 
 cat("mllk:", EM.2m1$mllk, " AIC:", EM.2m1$AIC, " BIC:", EM.2m1$BIC, "\n")
-EM.2m1_pseudo_residuals <- HSMM.pseudo_residuals(obs = data, m.2m1, EM.2m1$theta_simplex_vec, 
+EM.2m1_pseudo_residuals <- HSMM.pseudo_residuals.geom(obs = data, m.2m1, EM.2m1$theta_simplex_vec, 
                       EM.2m1$mu, EM.2m1$sigma, EM.2m1$gamma, plt = TRUE)
-EM.2m1_viterbi <- HSMM.viterbi(obs = data, m.2m1, EM.2m1$theta_simplex_vec, EM.2m1$mu, EM.2m1$sigma, EM.2m1$gamma, plt = TRUE)
+EM.2m1_viterbi <- HSMM.viterbi.geom(obs = data, m.2m1, EM.2m1$theta_simplex_vec, EM.2m1$mu, EM.2m1$sigma, EM.2m1$gamma, plt = TRUE)
 
 
 EM.2m1$mu
@@ -274,7 +270,7 @@ parms_init$gamma <- matrix(c(0, 1,
                                  1, 0),  K, K, byrow = T)
 
 
-EM.2m2 <- HSMM.ECM(K, 
+EM.2m2 <- HSMM.ECM.geom(K, 
                 m = m.2m2, 
                 obs = data, 
                 parms_init,
@@ -286,9 +282,9 @@ EM.2m2 <- HSMM.ECM(K,
 ```{r Frequentist_MLE_m2_diag, include=TRUE,echo=TRUE, eval=TRUE,cache=TRUE}
 
 cat("mllk:", EM.2m2$mllk, " AIC:", EM.2m2$AIC, " BIC:", EM.2m2$BIC, "\n")
-EM.2m2_pseudo_residuals <- HSMM.pseudo_residuals(obs = data, m.2m2, EM.2m2$theta_simplex_vec, 
+EM.2m2_pseudo_residuals <- HSMM.pseudo_residuals.geom(obs = data, m.2m2, EM.2m2$theta_simplex_vec, 
                       EM.2m2$mu, EM.2m2$sigma, EM.2m2$gamma, plt = TRUE)
-EM.2m2_viterbi <- HSMM.viterbi(obs = data, m.2m2, EM.2m2$theta_simplex_vec, EM.2m2$mu, EM.2m2$sigma, EM.2m2$gamma, plt = TRUE)
+EM.2m2_viterbi <- HSMM.viterbi.geom(obs = data, m.2m2, EM.2m2$theta_simplex_vec, EM.2m2$mu, EM.2m2$sigma, EM.2m2$gamma, plt = TRUE)
 
 
 EM.2m2$mu

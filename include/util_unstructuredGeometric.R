@@ -47,7 +47,7 @@ HSMM_generate_unstructuredGeometric_approx <- function(N, K ,theta_list, a_mat, 
 
 # EM algorithm for approx HSMM
 #HSMM.EM <- function(K, obs, m, lambda, mu, sigma, gamma, niter = 1e3)
-HSMM.ECM <- function(K, m, obs, parms_init, niter = 1e3)
+HSMM.ECM.geom <- function(K, m, obs, parms_init, niter = 1e3)
 {
   
   mu <- parms_init$mu
@@ -74,10 +74,10 @@ HSMM.ECM <- function(K, m, obs, parms_init, niter = 1e3)
     
     # - transitions
     # gamma.next <- update.transitions(K, m, gamma, lambda, allprobs_aggr)
-    gamma.next <- update.transitions(K, m, gamma, theta_simplex_vec, allprobs_aggr)
+    gamma.next <- update.transitions.geom(K, m, gamma, theta_simplex_vec, allprobs_aggr)
     # - emissions
     # fb <- forward_backwards.aggr(obs, m, allprobs_aggr, lambda,  gamma.next)
-    fb <- forward_backwards.aggr(obs, m, allprobs_aggr, theta_simplex_vec,  gamma.next)
+    fb <- forward_backwards.aggr.geom(obs, m, allprobs_aggr, theta_simplex_vec,  gamma.next)
     la <- fb$la
     lb <- fb$lb
     
@@ -106,7 +106,7 @@ HSMM.ECM <- function(K, m, obs, parms_init, niter = 1e3)
   # z <- HSMM.viterbi(obs, m, lambda, mu, sigma, gamma)
   # lppd <- sum(dnorm(obs, mu[z], sigma[z], log = TRUE)) # log pointwise predictive density, BDA p. (168-169)
   #llk <- -HSMM.mllk(obs, m, lambda,  mu, sigma, gamma) 
-  llk <- -HSMM.mllk(obs, m, theta_simplex_vec,  mu, sigma, gamma) 
+  llk <- -HSMM.mllk.geom(obs, m, theta_simplex_vec,  mu, sigma, gamma) 
   
   #np <- if(K < 3) 3*K else K^2 - 2*K + 3*K
   # K x means, K x variances, K x (K-2) for the transition matrix, sum(m) for the theta's
@@ -155,7 +155,7 @@ update.gauss.emission <- function(m, obs, fb)
 
 # update transition probs
 #update.transitions <- function(K, m, gamma, lambda, allprobs_aggr)
-update.transitions <- function(K, m, gamma, theta_simplex_vec, allprobs_aggr)
+update.transitions.geom <- function(K, m, gamma, theta_simplex_vec, allprobs_aggr)
 {
   if (K < 3) {
     gamma.next <- matrix(0, K, K)
@@ -164,7 +164,7 @@ update.transitions <- function(K, m, gamma, theta_simplex_vec, allprobs_aggr)
     parvect <- gamma_mat.to.log_vec(K, gamma)
     #fit.mle <-nlm(HSMM.mllk.gamma, parvect, m = m, 
     #              lambda = lambda, allprobs_aggr = allprobs_aggr)
-    fit.mle <-nlm(HSMM.mllk.gamma, parvect, m = m, 
+    fit.mle <-nlm(HSMM.mllk.gamma.geom, parvect, m = m, 
                   theta_simplex_vec = theta_simplex_vec, allprobs_aggr = allprobs_aggr)
     gamma.next <- log_vec.to.gamma_mat(K, fit.mle$estimate)
   }
@@ -173,7 +173,7 @@ update.transitions <- function(K, m, gamma, theta_simplex_vec, allprobs_aggr)
 
 # forward backward messages (aggregates)
 # forward_backwards.aggr <- function(obs, m, allprobs_aggr, lambda, gamma) 
-forward_backwards.aggr <- function(obs, m, allprobs_aggr, theta_simplex_vec, gamma) 
+forward_backwards.aggr.geom <- function(obs, m, allprobs_aggr, theta_simplex_vec, gamma) 
 {
   
   M <- sum(m)
@@ -250,7 +250,7 @@ get.gauss.emission_aggr <- function(obs, m, mu, sigma)
 
 #  (approx) HSSM likelihood, only tpm (gamma) as parameter
 # HSMM.mllk.gamma <- function(parvect, m, lambda, allprobs_aggr) 
-HSMM.mllk.gamma <- function(parvect, m, theta_simplex_vec, allprobs_aggr)
+HSMM.mllk.gamma.geom <- function(parvect, m, theta_simplex_vec, allprobs_aggr)
 {
   N <- nrow(allprobs_aggr)
   M <- sum(m)
@@ -303,7 +303,7 @@ HSMM.mllk.theta_simplex_vec <- function(parvect, m, obs, mu, sigma, gamma) {
 
 # (approx) HSSM likelihood
 # HSMM.mllk <- function(obs, m, lambda, mu, sigma, gamma) 
-HSMM.mllk <- function(obs, m, theta_simplex_vec, mu, sigma, gamma) 
+HSMM.mllk.geom <- function(obs, m, theta_simplex_vec, mu, sigma, gamma) 
 {
   N <- length(obs)
   M <- sum(m)
@@ -329,7 +329,7 @@ HSMM.mllk <- function(obs, m, theta_simplex_vec, mu, sigma, gamma)
 # ordinary pseudo residuals + plot, qqplot and hist
 #  (see Zucchini et al., p.96)
 #HSMM.pseudo_residuals <- function(obs, m, lambda, mu, sigma, gamma,
-HSMM.pseudo_residuals <- function(obs, m, theta_simplex_vec, mu, sigma, gamma,
+HSMM.pseudo_residuals.geom <- function(obs, m, theta_simplex_vec, mu, sigma, gamma,
                                   delta = NULL, xrange = NULL, plt = TRUE)
 {
   N <- length(obs)
@@ -342,7 +342,7 @@ HSMM.pseudo_residuals <- function(obs, m, theta_simplex_vec, mu, sigma, gamma,
                   to = qnorm(0.999, max(mu), max(sigma)), len = 5e2)
   
   #cdists <- HSMM.conditionals(obs, m, lambda, mu, sigma, gamma,
-  cdists <- HSMM.conditionals(obs, m, theta_simplex_vec, mu, sigma, gamma,
+  cdists <- HSMM.conditionals.geom(obs, m, theta_simplex_vec, mu, sigma, gamma,
                                     delta = NULL, xrange = xrange)$cdists
   cumdists <- rbind(rep(0, N), apply(cdists, 2, cumsum))
   u <- rep(NA, N)
@@ -372,7 +372,7 @@ HSMM.pseudo_residuals <- function(obs, m, theta_simplex_vec, mu, sigma, gamma,
 
 # full conditionals observations (see Zucchini et al., p.76)
 #HSMM.conditionals <- function(obs, m, lambda, mu, sigma, gamma, delta = NULL, xrange = NULL)
-HSMM.conditionals <- function(obs, m, theta_simplex_vec, mu, sigma, gamma, delta = NULL, xrange = NULL)
+HSMM.conditionals.geom <- function(obs, m, theta_simplex_vec, mu, sigma, gamma, delta = NULL, xrange = NULL)
 {
   
   N <- length(obs)
@@ -388,7 +388,7 @@ HSMM.conditionals <- function(obs, m, theta_simplex_vec, mu, sigma, gamma, delta
   B <- B_matrix_unstructuredGeometric(K, m_vect = m, a_mat = gamma, theta_simplex_vec)
   allprobs_aggr <- get.gauss.emission_aggr(obs, m, mu, sigma)
   #fb <- forward_backwards.aggr(obs, m, allprobs_aggr, lambda,  gamma)
-  fb <- forward_backwards.aggr(obs, m, allprobs_aggr, theta_simplex_vec,  gamma)
+  fb <- forward_backwards.aggr.geom(obs, m, allprobs_aggr, theta_simplex_vec,  gamma)
   la <- fb$la
   lb <- fb$lb
   la <- cbind(log(delta), la)
@@ -410,7 +410,7 @@ HSMM.conditionals <- function(obs, m, theta_simplex_vec, mu, sigma, gamma, delta
 
 # Viterbi algorithm (see Zucchini et al., p.82) + plt
 #HSMM.viterbi <- function(obs, m, lambda, mu, sigma, gamma, draw = FALSE, plt = FALSE) {
-HSMM.viterbi <- function(obs, m, theta_simplex_vec, mu, sigma, gamma, draw = FALSE, plt = FALSE) {
+HSMM.viterbi.geom <- function(obs, m, theta_simplex_vec, mu, sigma, gamma, draw = FALSE, plt = FALSE) {
   
   N <- length(obs)
   K <- length(m)
