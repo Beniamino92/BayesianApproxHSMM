@@ -19,7 +19,7 @@ library("bridgesampling")
 # setwd("C:/Users/JeJewson/Documents/Barcelona_Yr1/bennisCode")
 # setwd("C:/Users/Rachel Wilkerson/Documents/JackFiles")
 setwd("/Users/beniamino/Desktop/HSMM_Project/Temp/")
-source.all("include/")
+source("include/util_unstructuredGeometric.R")
 
 rstan_options(auto_write = TRUE)
 ```
