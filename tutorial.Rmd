@@ -61,15 +61,17 @@ K <- 3
 m <- rep(5, K)
 lambda.0 <- rep(20, K)
 parms.0 <- HSMM.init(obs, K, lambda.0) # initial values
-HSMM.ECM <- HSMM.ECM(K = K, m = m, obs = obs, parms_init = parms.0, niter = 1e2)
-cat("mllk:", HSMM.ECM$mllk, " AIC:", HSMM.ECM$AIC, " BIC:", HSMM.ECM$BIC, "\n")
+HSMM.ECM.fit <- HSMM.ECM(K = K, m = m, obs = obs, parms_init = parms.0, niter = 1e2)
+cat("mllk:", HSMM.ECM.fit$mllk, " AIC:", HSMM.ECM.fit$AIC, " BIC:", HSMM.ECM.fit$BIC, "\n")
 ```
 
 ```{r ECM_out, include=TRUE, echo=TRUE, eval=TRUE, cache=TRUE, results='hide'}
 # psuedo residuals + most likely state sequence (viterbi)
-HSMM.pseudo_residuals(obs, m, HSMM.ECM$lambda, 
-                      HSMM.ECM$mu, HSMM.ECM$sigma, HSMM.ECM$gamma, plt = TRUE)
-HSMM.viterbi(obs, m, HSMM.ECM$lambda, HSMM.ECM$mu, HSMM.ECM$sigma, HSMM.ECM$gamma, plt = TRUE)
+HSMM.pseudo_residuals(obs, m, HSMM.ECM.fit$lambda, 
+                      HSMM.ECM.fit$mu, HSMM.ECM.fit$sigma, 
+                      HSMM.ECM.fit$gamma, plt = TRUE)
+HSMM.viterbi(obs, m, HSMM.ECM.fit$lambda, HSMM.ECM.fit$mu, HSMM.ECM.fit$sigma,
+             HSMM.ECM.fit$gamma, plt = TRUE)
 ```
 
 
@@ -83,15 +85,16 @@ K <- 3
 m <- rep(5, K)
 lambda.0 <- rep(5, K)
 parms.0 <- HSMM.init(obs, K, lambda.0) # initial values
-HSMM.MLE <- HSMM.mle(K, obs, parms.0)
-cat("mllk:", HSMM.MLE$mllk, " AIC:", HSMM.MLE$AIC, " BIC:", HSMM.MLE$BIC, "\n")
+HSMM.MLE.fit <- HSMM.mle(K, obs, parms.0)
+cat("mllk:", HSMM.MLE.fit$mllk, " AIC:", HSMM.MLE.fit$AIC, " BIC:", HSMM.MLE.fit$BIC, "\n")
 ```
 
 ```{r MLE_out, include=TRUE, echo=TRUE, eval=TRUE,cache=TRUE,results='hide'}
 # psuedo residuals + most likely state sequence (viterbi)
-HSMM.pseudo_residuals(obs, m, HSMM.MLE$lambda, 
-                      HSMM.MLE$mu, HSMM.MLE$sigma, HSMM.MLE$gamma, plt = TRUE)
-HSMM.viterbi(obs, m, HSMM.MLE$lambda, HSMM.MLE$mu, HSMM.MLE$sigma, HSMM.MLE$gamma, plt = TRUE)
+HSMM.pseudo_residuals(obs, m, HSMM.MLE.fit$lambda, 
+                      HSMM.MLE.fit$mu, HSMM.MLE.fit$sigma, HSMM.MLE.fit$gamma, plt = TRUE)
+HSMM.viterbi(obs, m, HSMM.MLE.fit$lambda, HSMM.MLE.fit$mu, 
+             HSMM.MLE.fit$sigma, HSMM.MLE.fit$gamma, plt = TRUE)
 ```
 
 
@@ -106,7 +109,7 @@ HSMM.viterbi(obs, m, HSMM.MLE$lambda, HSMM.MLE$mu, HSMM.MLE$sigma, HSMM.MLE$gamm
 # data.stan <- list(N = length(obs), K = K, y = obs,
 #                   m = m,  mu_0 = rep(0, K),
 #                   sigma_0 = 10, a_0 = 8, b_0 = 1, alpha_0 = 1)
-# fit.stan <- sampling(object = model.stan, data = data.stan,
+# HSMM.stan <- sampling(object = model.stan, data = data.stan,
 #                      warmup = 1000, iter=(1+5)*1000, chains = 1, cores = 1,
 #                      control = list(adapt_delta=0.95, stepsize=0.01, max_treedepth = 20))
 # print(fit.stan, probs = c(0.05, 0.95))$summary
@@ -116,11 +119,11 @@ m <- rep(5, K)
 lambda.0 <- rep(2, K) 
 data.stan <- list(N = length(obs), K = K, y = obs,
                   m = m,  mu_0 = rep(0, K), sigma_0 = 10, 
-                  a_0 = rep(8, K), b_0 = rep(1, K), alpha_0 = 1)
+                  a_0 = rep(2, K), b_0 = rep(1, K), alpha_0 = 1)
 
 HSMM.stan <- stan(file = "stan/bayesHSMMapprox.stan", data = data.stan, iter = 3e3, 
                  chains = 2, init = function(){HSMM.init.stan(K, obs, lambda.0)}, 
-                 seed = 0)
+                 seed = 1)
 print(HSMM.stan, probs = c(0.05, 0.95))
 ```
 
@@ -229,8 +232,8 @@ sigma.hat <- colMeans(sigma_sims)
 gamma.hat <- apply(gamma_sims, c(2, 3), mean)
 
 # psuedo residuals + most likely state sequence (viterbi)
-HSMM.pseudo_residuals(obs, m, lambda.hat, mu.hat, sigma.hat, gamma.hat, plt = TRUE)
-HSMM.viterbi(obs, m, lambda.hat, mu.hat, sigma.hat,gamma.hat, draw = FALSE, plt = TRUE) 
+HMM.pseudo_residuals(obs, mu.hat, sigma.hat, gamma.hat, plt = TRUE)
+HMM.viterbi(obs, mu.hat, sigma.hat,gamma.hat, draw = FALSE, plt = TRUE) 
 
 ```
 
@@ -238,7 +241,11 @@ HSMM.viterbi(obs, m, lambda.hat, mu.hat, sigma.hat,gamma.hat, draw = FALSE, plt 
 # performance measures 
 HMM.performance <- HMM.stan.performance(sims, obs)
 HMM.performance
+
+# predictive plot 
+HMM.predictive.plot(sims, obs, ndraw = 100)
 ```
+
 
 
 
@@ -249,8 +256,8 @@ HMM.performance
 
 # mu
 print(HSMM.stan, pars = "mu")
-cat("\n ECM: ", HSMM.ECM$mu)
-cat("\n MLE: ", HSMM.MLE$mu)
+cat("\n ECM: ", HSMM.ECM.fit$mu)
+cat("\n MLE: ", HSMM.MLE.fit$mu)
 cat("\n\n")
 
 # print(HMM.stan, pars = "mu")
@@ -264,8 +271,8 @@ cat("TRUTH: ", parms$mu)
 
 # sigma
 print(HSMM.stan, pars = "sigma")
-cat("\n ECM: ", HSMM.ECM$sigma)
-cat("\n MLE: ", HSMM.MLE$sigma)
+cat("\n ECM: ", HSMM.ECM.fit$sigma)
+cat("\n MLE: ", HSMM.MLE.fit$sigma)
 cat("\n\n")
 
 # print(HMM.stan, pars = "sigma")
@@ -279,8 +286,8 @@ cat("TRUTH: ", parms$sigma)
 
 # gamma
 print(HSMM.stan, pars = "gamma")
-cat("\n ECM: ", HSMM.ECM$gamma)
-cat("\n MLE: ", HSMM.MLE$gamma)
+cat("\n ECM: ", HSMM.ECM.fit$gamma)
+cat("\n MLE: ", HSMM.MLE.fit$gamma)
 cat("\n\n")
 
 # print(HMM.stan, pars = "gamma")
@@ -294,8 +301,8 @@ cat("TRUTH: ", parms$gamma)
 
 # lambda
 print(HSMM.stan, pars = "lambda")
-cat("\n ECM: ", HSMM.ECM$lambda)
-cat("\n MLE: ", HSMM.MLE$lambda)
+cat("\n ECM: ", HSMM.ECM.fit$lambda)
+cat("\n MLE: ", HSMM.MLE.fit$lambda)
 cat("\n\n")
 
 cat("TRUTH: ", parms$lambda)
