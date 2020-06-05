@@ -10,3 +10,16 @@ extra flexibility afforded by our proposed methodology to investigate departures
 
 The probabilistic programming framework associated with stan makes it easy for practitioners to consider further dwell distributions to the ones considered here. Users need only to change the corresponding function in our stan files.
 
+* Main Inference Scripts:
+```
+tutorial.Rmd, case_study.Rmd
+```
+* stan:
+```
+bayesHMM_GaussEmis.stan, bayesHSMMapprox_GaussEmis_NegBinomDur.stan, bayesHSMMapprox_GaussEmis_NegBinomDur_sparse.stan
+bayesHSMMapprox_GaussEmis_PoissDur.stan, bayesHSMMapprox_GaussEmis_PoissDur_sparse.stan, bayesHSMMapprox_GaussEmis_unstrGeomDur.stan
+```
+* include:
+```
+util_hmm.R, util_negativeBinomial.R, util_poisson.R, util_unstructuredGeometric.R
+
