@@ -33,6 +33,7 @@ library("bridgesampling")
 library("matrixStats")
 library("lubridate")
 
+# (your current directory must contain both /stan and /include)
 setwd("/Users/beniamino/Desktop/HSMM_Project/Final/")
 source.all("include/")
 
