@@ -14,12 +14,5 @@ The probabilistic programming framework associated with stan makes it easy for p
 ```
 tutorial.Rmd, case_study.Rmd
 ```
-* stan:
-```
-bayesHMM_GaussEmis.stan, bayesHSMMapprox_GaussEmis_NegBinomDur.stan, bayesHSMMapprox_GaussEmis_NegBinomDur_sparse.stan
-bayesHSMMapprox_GaussEmis_PoissDur.stan, bayesHSMMapprox_GaussEmis_PoissDur_sparse.stan, bayesHSMMapprox_GaussEmis_unstrGeomDur.stan
-```
-* include:
-```
-util_hmm.R, util_negativeBinomial.R, util_poisson.R, util_unstructuredGeometric.R
+
 
