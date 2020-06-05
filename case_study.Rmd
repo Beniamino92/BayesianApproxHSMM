@@ -8,11 +8,21 @@ output: html_document
 
 ---
 
-This R markdown file is part of the supplementary material to the paper 'Bayesian Approximation of Hidden Semi-Models' by B.Hadj-Amar, J.Jewson and M.Fiecas. 
+This R markdown file is part of the supplementary material to the paper 
 
-Here, we analyze the physical activity (PA) time series that was investigated using a frequentist HMM by Huang et al. (2018). We seek to conduct a similar study but within a Bayesian framework and considering the extra flexibility afforded by our proposed methodology to investigate departures from the HMM. In this R markdown file we run the full estimation algorithm for HMM and our HSMM approximation with negative-binomial durations. 
+      'Bayesian Approximation of Hidden Semi-Markov Models' (2020)
+                by B.Hadj-Amar, J.Jewson and M.Fiecas. 
 
-The data represent 4 days of 5-min averaged PA recording of a healthy subject, for a total of 1150 data points.
+Here, we analyze the physical activity (PA) time series that was invest-
+igated using a frequentist HMM by Huang et al. (2018). We seek to condu-
+cta similar study but within a Bayesian framework and considering the 
+extra flexibility afforded by our proposed methodology to investigate de-
+partures from the HMM. In this R markdown file we run the full estimati-
+on algorithm for HMM and our HSMM approximation with negative-binomial 
+durations. 
+
+The data represent 4 days of 5-min averaged PA recording of a healthy 
+subject, for a total of 1150 data points.
 
 ---
 
