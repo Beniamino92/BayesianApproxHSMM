@@ -1,10 +1,10 @@
 # BayesianApproxHSMM
 
-BayesianApproxHSMM contains the stan software (as well as R utilities) to model time series and sequential data via a Bayesian  HMM that is a reformulation of any given HSMM as detail in "Bayesian Approximation of Hidden Semi-Markov Models" by B.Hadj-Amar, J.Jewson, M.Fiecas. 
+BayesianApproxHSMM contains the stan software (as well as R utilities) to model time series and sequential data via a Bayesian  HMM that is a reformulation of any given HSMM as detailed in "Bayesian Approximation of Hidden Semi-Markov Models" by B.Hadj-Amar, J.Jewson, M.Fiecas. 
 
 ## Contents
 
-This software is illustrated in two studies.  First, we generate data from a three state HSMM with Gaussian emission and Poisson dwell durations. Estimation procedures are carried out using both frequentist (EM) and Bayesian approaches, where we validate each model using several diagnostic tools. We also illustrate the use of Bayes factors for model selection between our proposed approach and the HMM. Second, we analyze the physical activity time series that was investigated using a frequentist HMM by Huang et al. (2018). We seek to conducta similar study but within a Bayesian framework and considering the 
+This software is illustrated in two studies.  First, we generate data from a three state HSMM with Gaussian emission and Poisson dwell durations. Estimation procedures are carried out using both frequentist (EM) and Bayesian approaches, where we validate each model using several diagnostic tools. We also illustrate the use of Bayes factors for model selection between our proposed approach and the HMM. Second, we analyze the physical activity time series that was investigated using a frequentist HMM by Huang et al. (2018). We seek to conduct a similar study but within a Bayesian framework and considering the 
 extra flexibility afforded by our proposed methodology to investigate departures from the HMM. 
 
 
