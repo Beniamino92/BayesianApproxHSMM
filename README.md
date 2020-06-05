@@ -17,6 +17,16 @@ We implemented code for the following dwell durations: geometric (i.e. HMM), poi
 In our applied scenario we consider dwell-approximation thresholds as big as a = (150,10,10) with sparsity of greater than 98% allowing us to take considerable advantage of this formulation.
 
 
+### Contact Information
+
+This software was developed by Beniamino Hadj-Amar (bhadjama@umn.edu) and Jack Jewson (j.e.jewson@warwick.ac.uk)
+
+
+
+#### Acknowledgments
+
+Parts of this software were adapted from "Hidden Markov Models for Time Series" (Zucchini et al., 2017).
+
 
 
 
