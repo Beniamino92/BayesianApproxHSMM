@@ -229,7 +229,8 @@ data {
   real mu_0[K]; // prior mean gauss emis
   real sigma_0; // prior sd      ""        ""
   real<lower = 0> alpha_0_gamma; // prior dirichlet transition probs
-  real<lower = 0> alpha_0_theta; // prior dirichlet unstr-Geom params
+  //real<lower = 0> alpha_0_theta; // prior dirichlet unstr-Geom params
+  vector<lower = 0>[sum(m) + K] alpha_0_theta_vec; // prior dirichlet unstr-Geom params
 }
 
 parameters {
@@ -256,10 +257,12 @@ model {
   
   // Now the dirichelt prior on the simplexes not forgetting the jacobian as our parameters are the unconstrained!
   // k = 1
-  target += dirichlet_lpdf(theta_simplex[1:(m[1]+1)] | rep_vector(alpha_0_theta, (m[1]+1))) + simplex_create_lj(theta[1:m[1]], m[1]);
+  //target += dirichlet_lpdf(theta_simplex[1:(m[1]+1)] | rep_vector(alpha_0_theta, (m[1]+1))) + simplex_create_lj(theta[1:m[1]], m[1]);
+  target += dirichlet_lpdf(theta_simplex[1:(m[1]+1)] | alpha_0_theta_vec[1:(m[1]+1)]) + simplex_create_lj(theta[1:m[1]], m[1]);
   // k > 1
   for(k in 2:K){
-    target += dirichlet_lpdf(theta_simplex[(sum(m[1:(k-1)]) + k):(sum(m[1:(k)]) + k)] | rep_vector(alpha_0_theta, (m[k]+1))) + simplex_create_lj(theta[(1+sum(m[1:(k-1)])):sum(m[1:k])], m[k]);
+    //target += dirichlet_lpdf(theta_simplex[(sum(m[1:(k-1)]) + k):(sum(m[1:(k)]) + k)] | rep_vector(alpha_0_theta, (m[k]+1))) + simplex_create_lj(theta[(1+sum(m[1:(k-1)])):sum(m[1:k])], m[k]);
+    target += dirichlet_lpdf(theta_simplex[(sum(m[1:(k-1)]) + k):(sum(m[1:(k)]) + k)] | alpha_0_theta_vec[(sum(m[1:(k-1)]) + k):(sum(m[1:(k)]) + k)]) + simplex_create_lj(theta[(1+sum(m[1:(k-1)])):sum(m[1:k])], m[k]);
   }
   
   // likelihood

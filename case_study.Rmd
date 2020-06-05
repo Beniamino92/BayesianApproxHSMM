@@ -1,0 +1,317 @@
+---
+title: "Case Study: Physical Activity (PA)"
+author: "Beniamino Hadj-Amar and Jack Jewson"
+date: "04/06/2020"
+output: html_document
+---
+
+
+---
+
+This R markdown file is part of the supplementary material to the paper 'Bayesian Approximation of Hidden Semi-Models' by B.Hadj-Amar, J.Jewson and M.Fiecas. 
+
+Here, we analyze the physical activity (PA) time series that was investigated using a frequentist HMM by Huang et al. (2018). We seek to conduct a similar study but within a Bayesian framework and considering the extra flexibility afforded by our proposed methodology to investigate departures from the HMM. In this R markdown file we run the full estimation algorithm for HMM and our HSMM approximation with negative-binomial durations. 
+
+The data represent 4 days of 5-min averaged PA recording of a healthy subject, for a total of 1150 data points.
+
+---
+
+
+## Set up
+
+```{r set_up, include=TRUE, echo=FALSE, eval=TRUE, cache=TRUE, results='hide'}
+
+library("miceadds")
+library("rstan")
+library("bayesplot")
+library("bridgesampling")
+library("matrixStats")
+library("lubridate")
+
+setwd("/Users/beniamino/Desktop/HSMM_Project/Final/")
+source.all("include/")
+
+rstan_options(auto_write = TRUE)
+options(mc.cores = parallel::detectCores())
+```
+
+## Data & Pre-processing
+
+```{r data, include=TRUE, echo=FALSE, eval=TRUE, cache=TRUE, results='hide'}
+RA.data <- read.csv(paste0(getwd(), "/data/S16.csv"))
+
+# --- NAs (mean adjecent point)
+NAs <- which(is.na(RA.data$activity)) # only 3 NA's
+for (i in 1:length(NAs)) {
+  ind_lower <- NAs[i] - 1
+  ind_upper <- NAs[i] + 1
+  RA.data$activity[NAs[i]] <- mean(RA.data$activity[c(ind_lower, ind_upper)])
+}
+
+# -- transformed data (sqrt)
+RA.data$activity.sq <- sqrt(RA.data$activity) 
+
+attach(RA.data)
+obs <- activity.sq
+N <- nrow(RA.data)
+```
+
+## Plot: PA and sqrt(PA)
+
+```{r plot_data, include=TRUE, echo=FALSE, eval=TRUE, cache=TRUE, results='hide'}
+# physical activity 
+ticks <- seq(from = 3, to = N, by = 96)
+labels <- paste(hour(as.character(time))[ticks], "00", sep = ":")
+labels[labels == "4:00"] = "04:00"
+par(mfrow = c(1, 1))
+plot(activity, type = "p", pch = 20, cex = 0.4, xaxt = "n", 
+     xlab = "", col = "gray48", xlim = c(-5, N+5), xaxs='i', 
+     ylab = "Physical Activity")
+axis(side = 1, ticks, labels, cex.axis = 0.7, las = 2, tck=-0.04)
+i <- c(0, 2*144, 4*144, 6*144, 8*144)
+rect(3 + i, -2, 147 + i, -1, col="black") 
+
+# sqrt physical activity 
+ticks <- seq(from = 3, to = N, by = 96)
+labels <- paste(hour(as.character(time))[ticks], "00", sep = ":")
+labels[labels == "4:00"] = "04:00"
+par(mfrow = c(1, 1))
+plot(sqrt(activity), type = "p", pch = 20, cex = 0.4, xaxt = "n", 
+     xlab = "", col = "gray48", xlim = c(-5, N+5), xaxs='i', 
+     ylab = "Sqrt (Physical Activity)", ylim = c(-0.06, 7.2))
+axis(side = 1, ticks, labels, cex.axis = 0.7, las = 2, tck=-0.04)
+i <- c(0, 2*144, 4*144, 6*144, 8*144)
+rect(3 + i, -0.3, 147 + i, -0.2, col="black") 
+
+```
+
+## Comparable Priors - Set Up
+
+```{r prior_setup, include=TRUE, echo=FALSE, eval=TRUE, cache=TRUE, results='hide'}
+K <- 3 # n of states
+alpha_0 <- matrix(NA, K, K) # hyperparms dirichlet
+a_0 <- numeric(K) # hyperparms gamma
+b_0 <- numeric(K) #       ""
+
+```
+
+
+## Comparable Priors - State 1 : Inactive (IA) 
+
+```{r prior_state1, include=TRUE, echo=FALSE, eval=TRUE, cache=TRUE, results='hide'}
+# mean 7.5x12 = 90; var (0.5x12)^2 = 36. 
+# prior information: we assume that the night rest period of a healhty
+# individual is between 7 and 8 hours, where we account for some 
+# variability amongst people.
+
+state <- 1
+mean.target <- 7.5*12
+var.target <- (0.5*12)^2
+
+dir.parms <- optim(par = rep(5, 2),
+                   fn = function(par) {
+                     geom.dwell.error(exp(par[1]), exp(par[2]), 
+                                      mean.target, var.target)
+                   })
+# we assume equal probability of going to state 2 (MA) or 3 (HA)
+est <- exp(dir.parms$par)
+alpha_0[state, ] <- c(est[1], est[2]/2, est[2]/2)
+
+gamma.parms <- optim(par = rep(5, 2), 
+                     fn = function(par) {
+                       nb.dwell.error(exp(par[1]), exp(par[2]), 
+                                      mean.target, var.target)
+                     })
+est <- exp(gamma.parms$par)
+a_0[state] <- est[1]; 
+b_0[state] <- est[2];
+
+
+geom.dwell.info(alpha_0[state, state], sum(alpha_0[state, -state]))
+nb.dwell.info(a_0[state], b_0[state])
+```
+
+
+## Comparable Priors - State 2 : Moderately Active (MA) 
+
+```{r prior_state2, include=TRUE, echo=FALSE, eval=TRUE, cache=TRUE, results='hide'}
+# mean: 1x12 = 12; var: (1.5x12)^2 = 324. 
+# prior information:  the other 16-17 hours are split between the other two states, i.e.
+# moderately active and highly active states. In general, we have much less information 
+# on how long peopel spend in  these states. We fix mean 2 hours and a large variance.
+state <- 2
+mean.target <- 2*12
+var.target <- (1.5*12)^2
+
+dir.parms <- optim(par = c(5, 2),
+                   fn = function(par) {
+                     geom.dwell.error(exp(par[1]), exp(par[2]), 
+                                      mean.target, var.target)
+                   })
+# MA and HA alternates between each other more frequently than with IA, 
+# Hence we may assume transitions from MA->HA is 4 times more likely 
+# than going from MA->IA
+est <- exp(dir.parms$par)
+alpha_0[state, ] <- c(est[2]/5, est[1], est[2]*(4/5))
+
+gamma.parms <- optim(par = c(5, 5), 
+                     fn = function(par) {
+                       nb.dwell.error(exp(par[1]), exp(par[2]), 
+                                      mean.target, var.target)
+                     })
+est <- exp(gamma.parms$par)
+a_0[state] <- est[1]; 
+b_0[state] <- est[2];
+
+
+geom.dwell.info(alpha_0[state, state], sum(alpha_0[state, -state]))
+nb.dwell.info(a_0[state], b_0[state])
+```
+
+
+## Comparable Priors - ---- State 3:  Highly Active (HA) 
+
+```{r prior_state3, include=TRUE, echo=FALSE, eval=TRUE, cache=TRUE, results='hide'}
+# mean: 1x12 = 12; var: (1.5x12)^2 = 324. 
+# prior information:  the other 16-17 hours are split between the other two states, i.e.
+# MA and HA states. In general, we have much less information 
+# on how long peopel spend in these states. We fix mean 2 hours and a large variance.
+
+state <- 3
+mean.target <- 2*12
+var.target <- (1.5*12)^2
+
+dir.parms <- optim(par = rep(5, 2),
+                   fn = function(par) {
+                     geom.dwell.error(exp(par[1]), exp(par[2]), 
+                                      mean.target, var.target)
+                   })
+
+# MA and HA alternates between each other more frequently than with IA, 
+# Hence we may assume transitions from HA->MA is 4 times more likely 
+# than going from HA->IA
+est <- exp(dir.parms$par)
+alpha_0[state, ] <- c(est[2]/5, est[2]*(4/5),est[1])
+
+gamma.parms <- optim(par = rep(5, 2), 
+                     fn = function(par) {
+                       nb.dwell.error(exp(par[1]), exp(par[2]), 
+                                      mean.target, var.target)
+                     })
+est <- exp(gamma.parms$par)
+a_0[state] <- est[1]; 
+b_0[state] <- est[2];
+
+
+geom.dwell.info(alpha_0[state, state], sum(alpha_0[state, -state]))
+nb.dwell.info(a_0[state], b_0[state])
+```
+
+## Bayesian HSMM Approx - Negative Binomial Dwell
+
+```{r prior_specification, include=TRUE, echo=FALSE, eval=TRUE, cache=TRUE, results='hide'}
+K <- 3 # n of states
+m <- c(150, 10, 10) # dwell threshold
+
+# hyperparms
+sigma_0 <- 2
+mu_0 <- rep(mean(obs), K)
+a_0; b_0
+v_0 <- matrix(c(alpha_0[1, 2:3], alpha_0[2, c(1, 3)], alpha_0[3, 2:3]),
+                  nrow = K, ncol = K -1, byrow = TRUE)
+
+# Testing for sparsity
+if((K / sum(m)) < 0.1) {
+  path.stan <- "stan/bayesHSMMapprox_GaussEmis_NegBinomDur_sparse.stan"
+} else{
+  path.stan <- "stan/bayesHSMMapprox_GaussEmis_NegBinomDur.stan"
+}
+
+HSMM.data <- list(N = length(obs), K = K, y = obs, m = m, mu_0 = mu_0,
+                  sigma_0 = sigma_0, a_0_lambda = a_0, b_0_lambda = b_0,
+                  a_0_phi = 2, b_0_phi = 2, alpha_0 = v_0)
+HSMM.stan <- stan(file = path.stan, data = HSMM.data,
+                  warmup = 1000, iter=(1+5)*1000, chains=1, cores=1)
+
+```
+
+## Diagnostic: Bayesian HSMM Approx - Negative Binomial Dwell
+
+```{r bayesHSMMapprox, include=TRUE, echo=FALSE, eval=TRUE, cache=TRUE, results='hide'}
+# --- extracting samples 
+sims <- extract(HSMM.stan)
+lambda_sims <- sims$lambda
+phi_sims <- 1/sims$phim1
+mu_sims <- sims$mu
+sigma_sims <- sqrt(sims$sigma2)
+gamma_sims <- get.gamma_sims(sims$gamma)
+
+# --- bayes estimates
+lambda.hat <- colMeans(lambda_sims)
+phi.hat <- colMeans(phi_sims)
+mu.hat <- colMeans(mu_sims)
+sigma.hat <- colMeans(sigma_sims)
+gamma.hat <- apply(gamma_sims, c(1, 2), mean)
+
+# --- posterior predictive check
+negBinom.HSMM.predictive.plot(sims, obs, m, ndraw = 50)
+
+# --- psuedo-residuals
+negBinom.HSMM.pseudo_residuals(obs, m, lambda.hat, phi.hat,
+                               mu.hat, sigma.hat, gamma.hat)
+
+```
+
+
+
+## Bayesian HMM - Geometric Dwell
+
+```{r bayes_HMM, include=TRUE, echo=FALSE, eval=TRUE, cache=TRUE, results='hide'}
+K <- 3 # n of states
+
+# hyperparams
+mu_0 <- rep(mean(obs), K)
+sigma_0 <- 2
+alpha_0
+
+HMM.data <- list(N = length(obs), K = K, y = obs, mu_0 = mu_0,
+                 sigma_0 = sigma_0, alpha_0 = alpha_0)
+HMM.stan <- stan(file = "stan/bayesHMM_GaussEmis.stan", data = HMM.data,
+                 warmup = 1000, iter=(1+5)*1000, chains=1, cores=1)
+print(HMM.stan, probs = c(0.05, 0.95))
+```
+
+
+
+## Diagnostic: Bayesian HMM (Geometric Dwell)
+
+```{r bayes_HMM, include=TRUE, echo=FALSE, eval=TRUE, cache=TRUE, results='hide'}
+# --- extracting samples 
+sims <- extract(HMM.stan)
+mu_sims <- sims$mu
+sigma_sims <- sqrt(sims$sigma)
+gamma_sims <- sims$gamma
+
+# --- bayes estimates
+mu.hat <- colMeans(mu_sims)
+sigma.hat <- colMeans(sigma_sims)
+gamma.hat <- apply(gamma_sims, c(2, 3), mean)
+
+# psuedo residuals + most likely state sequence (viterbi)
+HMM.pseudo_residuals(obs, mu.hat, sigma.hat, gamma.hat, plt = TRUE)
+HMM.viterbi(obs, mu.hat, sigma.hat,gamma.hat, draw = FALSE, plt = TRUE) 
+```
+
+
+## Model Selection - Bayes Factor
+
+```{r model_selection, include=TRUE,echo=TRUE, eval=TRUE,cache=TRUE,results='hide'}
+# - bridge sampler and marginal likelihood
+HSMM.bridge <- bridge_sampler(HSMM.stan)
+HMM.bridge <- bridge_sampler(HMM.stan)
+HSMM.marg_llk <- HSMM.bridge$logml
+HMM.marg_llk <- HMM.bridge$logml
+
+# - bayes factor
+exp(HSMM.marg_llk - HMM.marg_llk)
+```

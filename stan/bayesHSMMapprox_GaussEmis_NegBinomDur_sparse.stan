@@ -1,16 +1,20 @@
 
 functions {
   
-   /** c_harzard dwell pois
-  */
-  real c_hazard_dwell_poisson(int r, real lambda){
-    // shifted 
-    return exp(poisson_lpmf(r-1 | lambda))/(1-poisson_cdf(r-2, lambda));
-  }
+  // phi = size of NB, phi = infty recovers the Poisson - Inverse gamma prior
+  // phim1 = 1/size of NB, phim1 = 0 recovers the Poisson. - Gamma prior
   
-  /** B_matrix_poisson - sparse representation of the transpose;
+   /** c_harzard dwell Negative-Binomial
   */
-  vector w_B_transpose_matrix_poisson_sparse(int K, int[] m_vect, matrix a_mat, vector lambda_vec)
+  real c_hazard_dwell_negativeBinomial(int r, real lambda, real phi){
+    // shifted so that the minimum is 1
+    return exp(neg_binomial_2_lpmf(r-1 | lambda, phi))/(1-neg_binomial_2_cdf(r-2, lambda, phi));
+  }
+  // E[NB] = lambda, var[NB] = lambda + lambda^2/phi
+  
+  /** B_ii Negative-Binomial - sparse representation of the transpose;
+  */
+  vector w_B_transpose_matrix_negativeBinomial_sparse(int K, int[] m_vect, matrix a_mat, vector lambda_vec, vector phi_vec)
   {
       int sum_m = sum(m_vect);
       vector[sum_m*K] w_B;// we can think about exactly getting the lengths right and indexing in if needs be
@@ -30,12 +34,12 @@ functions {
             // When m_j = 1 need to include the transition to itself - should this go in the id i == j?
             if(m_vect[j] == 1){
               counter += 1;
-              w_B[counter] = (1 - c_hazard_dwell_poisson(m_vect[j], lambda_vec[j]));
+              w_B[counter] = (1 - c_hazard_dwell_negativeBinomial(m_vect[j], lambda_vec[j], phi_vec[j]));
             }
           } else{
             for(i_m in 1:m_vect[i]){
               counter += 1;
-              w_B[counter] = (a_mat[i,j] * c_hazard_dwell_poisson(i_m, lambda_vec[i]));
+              w_B[counter] = (a_mat[i,j] * c_hazard_dwell_negativeBinomial(i_m, lambda_vec[i], phi_vec[i]));
             }
           }
         }
@@ -43,21 +47,21 @@ functions {
         // j_m is in the middle, in which case we have it can only be reaced by the end state 
           for(j_m in 2:(m_vect[j] - 1)){
             counter += 1;
-            w_B[counter] = (1 - c_hazard_dwell_poisson(j_m - 1, lambda_vec[j]));
+            w_B[counter] = (1 - c_hazard_dwell_negativeBinomial(j_m - 1, lambda_vec[j], phi_vec[j]));
           }
         }
         if(m_vect[j] > 1){
         // j_m = m_j and then it can be reached by the previous state or itself. 
           counter += 1;
-          w_B[counter] =(1 - c_hazard_dwell_poisson(m_vect[j] - 1, lambda_vec[j]));
+          w_B[counter] =(1 - c_hazard_dwell_negativeBinomial(m_vect[j] - 1, lambda_vec[j], phi_vec[j]));
           counter += 1;
-          w_B[counter] =(1 - c_hazard_dwell_poisson(m_vect[j], lambda_vec[j]));
+          w_B[counter] =(1 - c_hazard_dwell_negativeBinomial(m_vect[j], lambda_vec[j], phi_vec[j]));
         }
       }
       return w_B;
     }
     
-  int[] v_B_transpose_matrix_poisson_sparse(int K, int[] m_vect, matrix a_mat, vector lambda_vec)
+  int[] v_B_transpose_matrix_negativeBinomial_sparse(int K, int[] m_vect, matrix a_mat, vector lambda_vec, vector phi_vec)
   {
       int sum_m = sum(m_vect);
       int v_B[K*sum_m];
@@ -104,7 +108,7 @@ functions {
     
     }
   
-  int[] u_B_transpose_matrix_poisson_sparse(int K, int[] m_vect, matrix a_mat, vector lambda_vec)
+  int[] u_B_transpose_matrix_negativeBinomial_sparse(int K, int[] m_vect, matrix a_mat, vector lambda_vec, vector phi_vec)
   {
       int sum_m = sum(m_vect);
       int u_B[sum_m + 1];
@@ -145,8 +149,7 @@ functions {
     }
       return u_B;
   }
-  
-  // The problem is I fucking need this for B^T!
+
     
   /** convert (K-1) simplex gamma to a K*K matrix transition matrix.
   */
@@ -224,14 +227,14 @@ functions {
   /** compute likelihood p(y_1, .., y_T  | )
   */
   real llk_sparse_lp(int N, int K, int[] m, real[] y, vector mu, 
-              vector sigma, vector lambda, vector[] a)
+              vector sigma, vector lambda, vector phi, vector[] a)
   {
     int M = sum(m);
     matrix[K, K] A =  a_to_mat(K, a);
     // bA = (A^Tb^T)^T where A^T is sparse
-    vector[K*M] w_B_transpose = w_B_transpose_matrix_poisson_sparse(K, m, A, lambda);
-    int v_B_transpose[K*M]= v_B_transpose_matrix_poisson_sparse(K, m, A, lambda);
-    int u_B_transpose[M + 1] = u_B_transpose_matrix_poisson_sparse(K, m, A, lambda);
+    vector[K*M] w_B_transpose = w_B_transpose_matrix_negativeBinomial_sparse(K, m, A, lambda, phi);
+    int v_B_transpose[K*M]= v_B_transpose_matrix_negativeBinomial_sparse(K, m, A, lambda, phi);
+    int u_B_transpose[M + 1] = u_B_transpose_matrix_negativeBinomial_sparse(K, m, A, lambda, phi);
     matrix[N, M] allprobs = get_gauss_emissions(N, K, m, y, mu, sigma);
     real llk =  forward_messages_sparse(N, M, allprobs, w_B_transpose, v_B_transpose, u_B_transpose);
     return llk;
@@ -246,30 +249,50 @@ data {
   
   real mu_0[K]; // prior mean gauss emis
   real sigma_0; // prior sd      ""
-  real<lower = 0> a_0[K];  // prior rate pois dwell
-  real<lower = 0> b_0[K]; //         ""
-  real<lower = 0> alpha_0; // prior dirichlet probs
+  real<lower = 0> a_0_lambda[K];  // prior rate pois dwell
+  real<lower = 0> b_0_lambda[K]; //         ""
+  real<lower = 0> a_0_phi;  //           ""
+  real<lower = 0> b_0_phi; //            ""
+  //real<lower = 0> alpha_0; // prior dirichlet probs
+  vector<lower = 0>[K-1] alpha_0[K]; // prior dirichlet probs
 }
 
 parameters {
   simplex[K-1] gamma[K];// transition prob mat // what if K = 2?!
   vector<lower=0>[K] lambda; // rate dwell distr
+  // vector<lower=0>[K] phi; // overdispersion of the dwell distribution
+  // vector<lower=0>[K] sqrt_phim1; // inverse of the square-root of the overdispersion of the dwell distribution
+  vector<lower=0>[K] phim1;
   ordered[K] mu; // mean gauss emission
-  vector<lower=0>[K] sigma; // sd gauss emission
+  vector<lower=0>[K] sigma2; // sd gauss emission
 }
 
+
 model {
+  
+  // transforming phi
+  vector[K] phi;
+  for(i in 1:K){
+    // phi[i] = 1/(sqrt_phim1[i])^2;
+    phi[i] = 1/(phim1[i]);
+  }
+
   // priors
   // target += cauchy_lpdf(sigma | 0, 1);
-  target += gamma_lpdf(sigma | 1, 0.5);
+  //target += gamma_lpdf(sigma | 1, 0.5);
+  target += inv_gamma_lpdf(sigma2 | 2, 0.5);
   // target += normal_lpdf(mu | mu_0, sigma_0*sigma);
   target += normal_lpdf(mu | mu_0, sigma_0);
-  target += gamma_lpdf(lambda | a_0, b_0);
+  target += gamma_lpdf(lambda | a_0_lambda, b_0_lambda);
+  // target += inv_gamma_lpdf(phi | a_0_phi, b_0_phi); // inverse gamma as 1/phi inflates the variance. 
+  target += gamma_lpdf(phim1 | a_0_phi, b_0_phi); // inverse gamma as 1/phi inflates the variance.
+  // target += normal_lpdf(sqrt_phim1| 0, 1);
+  // target += normal_lpdf(phim1| 0, 1);
   for(i in 1:K){
-    target += dirichlet_lpdf(gamma[i]|rep_vector(alpha_0, K-1));
+    target += dirichlet_lpdf(gamma[i]|alpha_0[i]);
   }
   // likelihood
-  target+= llk_sparse_lp(N, K, m, y, mu, sigma, lambda, gamma);
+  target+= llk_sparse_lp(N, K, m, y, mu, sqrt(sigma2), lambda, phi, gamma);
 }
 
 
