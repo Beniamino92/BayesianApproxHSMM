@@ -19,7 +19,7 @@ In our applied scenario we consider dwell-approximation thresholds as big as a =
 
 ### Contact Information and Acknowledgments
 
-BayesianApproxHSMM was developed by Beniamino Hadj-Amar (bhadjama@umn.edu) and Jack Jewson (j.e.jewson@warwick.ac.uk). 
+BayesianApproxHSMM was developed by Beniamino Hadj-Amar (bhadjama@umn.edu) and Jack Jewson (jack.jewson@barcelonagse.eu). 
 Parts of this software were adapted from "Hidden Markov Models for Time Series" (Zucchini et al., 2017) and  "Hidden Markov Models" (Stan User's Guide, Sec.2.6).
 
 
