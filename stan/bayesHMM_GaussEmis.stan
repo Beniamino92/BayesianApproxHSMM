@@ -72,6 +72,7 @@ data {
   
   real mu_0[K]; // prior mean gauss emis
   real sigma_0; // prior sd      ""
+  //real<lower = 0> alpha_0; // prior dirichlet probs
   vector<lower = 0>[K] alpha_0[K]; // prior dirichlet probs
 }
 
@@ -84,7 +85,6 @@ parameters {
 
 model {
   // priors
-  //target += gamma_lpdf(sigma2 | 2, 0.1);
   target += inv_gamma_lpdf(sigma2 | 2, 0.5);
   target += normal_lpdf(mu | mu_0, sigma_0);
   for(i in 1:K){

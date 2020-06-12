@@ -237,7 +237,7 @@ parameters {
   simplex[K-1] gamma[K];// transition prob mat // what if K = 2?!
   vector[sum(m)] theta; // params of the unstr-Geom dwell distribution - each d+1 simplex only have d degrees of freedom
   ordered[K] mu; // mean gauss emission
-  vector<lower=0>[K] sigma; // sd gauss emission
+  vector<lower=0>[K] sigma2; // sd gauss emission
 }
 
 model {
@@ -248,7 +248,7 @@ model {
   
   // priors
   // target += cauchy_lpdf(sigma | 0, 1);
-  target += gamma_lpdf(sigma | 1, 0.5);
+  target += inv_gamma_lpdf(sigma2 | 2, 0.5);
   // target += normal_lpdf(mu | mu_0, sigma_0*sigma);
   target += normal_lpdf(mu | mu_0, sigma_0);
   for(i in 1:K){
@@ -266,7 +266,7 @@ model {
   }
   
   // likelihood
-  target += llk_lp(N, K, m, y, mu, sigma, theta_simplex, gamma);
+  target += llk_lp(N, K, m, y, mu, sqrt(sigma2), theta_simplex, gamma);
 }
 
 
