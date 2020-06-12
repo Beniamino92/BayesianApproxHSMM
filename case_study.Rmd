@@ -10,7 +10,7 @@ output: html_document
 
 This R markdown file is part of the supplementary material to the paper 
 
-      'Bayesian Approximation of Hidden Semi-Markov Models' (2020)
+      'Bayesian Approximations to Hidden Semi-Markov Models' (2020)
                 by B.Hadj-Amar, J.Jewson and M.Fiecas. 
 
 Here, we analyze the physical activity (PA) time series that was invest-
@@ -38,6 +38,7 @@ library("bridgesampling")
 library("matrixStats")
 library("lubridate")
 
+# (your current directory must contain both /stan and /include)
 setwd("/Users/beniamino/Desktop/HSMM_Project/Final/")
 source.all("include/")
 
