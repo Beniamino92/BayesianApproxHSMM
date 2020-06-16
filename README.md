@@ -1,6 +1,6 @@
 # BayesianApproxHSMM
 
-BayesianApproxHSMM contains the stan software (as well as R utilities) to model time series and sequential data using a  Bayesian  HMM that is a reformulation of any given HSMM as detailed in "Bayesian Approximations to Hidden Semi-Markov Models" (2020) by B.Hadj-Amar, J.Jewson, M.Fiecas. 
+BayesianApproxHSMM contains the stan software (as well as R utilities) to model time series and sequential data using a  Bayesian  HMM that is a reformulation of any given HSMM as detailed in "Bayesian Approximations to Hidden Semi-Markov Models" (2020) by B.Hadj-Amar, J.Jewson, M.Fiecas. The article and supplemental material can be found at https://www.researchgate.net/publication/342200521_Bayesian_Approximations_to_Hidden_Semi-Markov_Models
 
 * Main Inference Scripts:
 ```
