@@ -139,7 +139,7 @@ gamma.hat <- apply(gamma_sims, c(1, 2), mean)
 # --- trace plots + hist transitions
 mcmc_trace(as.array(HSMM.stan), regex_pars = "gamma")
 mcmc_trace(as.array(HSMM.stan), regex_pars = "mu")
-mcmc_trace(as.array(HSMM.stan), regex_pars = "sigma")
+mcmc_trace(as.array(HSMM.stan), regex_pars = "sigma2")
 mcmc_trace(as.array(HSMM.stan), regex_pars = "lambda")
 HSMM.transitions.hist(gamma_sims)
 ```
