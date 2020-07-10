@@ -54,7 +54,7 @@ HMM.performance <- function(obs, mu, sigma, gamma)
 }
 
 
-# forward backward messages (aggregates)
+# forward backward messages
 forward_backwards <- function(obs, allprobs, gamma) 
 {
   
