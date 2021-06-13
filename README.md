@@ -4,7 +4,7 @@ BayesianApproxHSMM contains the stan software (as well as R utilities) to model 
 
 * Main Inference Scripts:
 ```
-tutorial.Rmd, case_study.Rmd case_study_frequency.jl
+tutorial.Rmd, case_study.Rmd, case_study_frequency.jl
 ```
 
 
