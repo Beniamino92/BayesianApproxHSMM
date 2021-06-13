@@ -20,7 +20,7 @@ In our applied scenario we consider dwell-approximation thresholds as big as a =
 
 ## Example - BayesApproxHSMM
 
-Here is an example of using our software
+Here is an example for using our (stan) software in R.
 
 ```r
 K <- 3 # n states 
@@ -42,6 +42,10 @@ HSMM.stan <- stan(file = stan_path, data = data.stan,
                  warmup = 1000, chains = 1, iter = (1+5)*1000, cores = 1, 
                  control = list(adapt_delta=0.99, stepsize=0.01, max_treedepth = 20))
 ```
+
+<p align="center">
+<img src="https://github.com/Beniamino92/BayesianApproxHSMM/blob/master/figures/example_postpred.png" width="400" heigth="400"/> <img src="https://github.com/Beniamino92/BayesianApproxHSMM/blob/master/figures/example_diagnostics.png" width="400" heigth="400"/>
+</p>
 
 
 ## Identifying the Periodicity 
