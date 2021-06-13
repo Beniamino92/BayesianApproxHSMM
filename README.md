@@ -19,9 +19,14 @@ We implemented code for the following dwell durations: geometric (i.e. HMM), poi
 In our applied scenario we consider dwell-approximation thresholds as big as a = (150,10,10) with sparsity of greater than 98% allowing us to take considerable advantage of this formulation.
 
 
-## Answer:
+## boh 1
 ![GitHub Logo](/figures/posterior_pred_freq.png)
 
+## boh 2
+![alt text](/figures/posterior_pred_freq.png)
+
+## boh 3
+![plot](/figures/posterior_pred_freq.png)
 
 ### Contact Information and Acknowledgments
 
