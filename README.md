@@ -28,6 +28,9 @@ In our applied scenario we consider dwell-approximation thresholds as big as a =
 ## boh 3
 ![plot](/figures/posterior_pred_freq.png){:height="10%" width="50%"}
 
+## boh 4
+<img src="https://github.com/Beniamino92/BayesianApproxHSMM/blob/master/figures/posterior_pred_freq.png" width="100" height="100">
+
 ### Contact Information and Acknowledgments
 
 BayesianApproxHSMM was developed by Beniamino Hadj-Amar (Beniamino.Hadj-Amar@rice.edu) and Jack Jewson (jack.jewson@barcelonagse.eu). 
