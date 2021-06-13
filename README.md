@@ -20,7 +20,9 @@ In our applied scenario we consider dwell-approximation thresholds as big as a =
 
 ## Identifying the Periodicity 
 
-We have also develpoed
+We have also develpoed a Julia v1.6 software to identify the frequency $\hat{\omega}$ that drives the overall variation in the physical activity time series.
+
+
 
 ```julia
 M = 1 # number of frequencies
