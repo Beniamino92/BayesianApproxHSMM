@@ -41,9 +41,15 @@ HSMM.stan <- stan(file = stan_path, data = data.stan,
                  init = function(){HSMM.init.stan(K, obs, rep(10, K))}, 
                  warmup = 1000, chains = 1, iter = (1+5)*1000, cores = 1, 
                  control = list(adapt_delta=0.99, stepsize=0.01, max_treedepth = 20))
+```                 
+   
+   
+        
+```r
 sims <- extract(HSMM.stan)
 HSMM.predictive.plot(sims, obs, m, ndraw = 50)
 ```
+
 
 <p align="center">
 <img src="https://github.com/Beniamino92/BayesianApproxHSMM/blob/master/figures/example_postpred.png" width="400" heigth="400"/> 
