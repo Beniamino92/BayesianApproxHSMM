@@ -29,13 +29,14 @@ In our applied scenario we consider dwell-approximation thresholds as big as a =
 ![plot](/figures/posterior_pred_freq.png)
 
 ## boh 4
-<img src="https://github.com/Beniamino92/BayesianApproxHSMM/blob/master/figures/posterior_pred_freq.png" width="300" height="300">
+<img src="https://github.com/Beniamino92/BayesianApproxHSMM/blob/master/figures/posterior_pred_freq.png" width="425" height="300">
 
 ### Contact Information and Acknowledgments
 
 BayesianApproxHSMM was developed by Beniamino Hadj-Amar (Beniamino.Hadj-Amar@rice.edu) and Jack Jewson (jack.jewson@barcelonagse.eu). 
 Parts of this software were adapted from "Hidden Markov Models for Time Series" (Zucchini et al., 2017) and  "Hidden Markov Models" (Stan User's Guide, Sec.2.6).
 
+<img src="https://github.com/Beniamino92/BayesianApproxHSMM/blob/master/figures/posterior_pred_freq.png" width="200"/> <img src="https://github.com/Beniamino92/BayesianApproxHSMM/blob/master/figures/posterior_freq.png" width="300"/> 
 
 
 
