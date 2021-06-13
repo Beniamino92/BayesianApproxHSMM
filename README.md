@@ -23,10 +23,10 @@ In our applied scenario we consider dwell-approximation thresholds as big as a =
 ![GitHub Logo](/figures/posterior_pred_freq.png){:height="50%" width="50%"}
 
 ## boh 2
-![alt text](/figures/posterior_pred_freq.png)
+![alt text](/figures/posterior_pred_freq.png){:height="50%" width="50%"}
 
 ## boh 3
-![plot](/figures/posterior_pred_freq.png)
+![plot](/figures/posterior_pred_freq.png){:height="50%" width="50%"}
 
 ### Contact Information and Acknowledgments
 
