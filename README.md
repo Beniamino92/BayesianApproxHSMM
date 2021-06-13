@@ -23,7 +23,7 @@ In our applied scenario we consider dwell-approximation thresholds as big as a =
 ```r
 K <- 3 # n states 
 m <- rep(5, K) # dwell threshold
-lambda.0 <- rep(10, K) # lambda initial value MCMC
+
 data.stan <- list(N = length(obs), K = K, y = obs,
                   m = m,  mu_0 = rep(mean(obs), K), 
                   sigma_0 = 2, a_0 = rep(0.01, K), b_0 = rep(0.01, K),
@@ -33,6 +33,7 @@ if ((K / sum(m) < 0.1)) {
 } else {
   stan_path <- "stan/bayesHSMMapprox_GaussEmis_PoissDur_sparse.stan"
 }
+
 HSMM.stan <- stan(file = stan_path, data = data.stan, 
                   init = function(){HSMM.init.stan(K, obs, rep(10, K))}, 
                   warmup = 1000, chains = 1, iter = (1+5)*1000, cores = 1, 
