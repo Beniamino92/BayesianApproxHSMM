@@ -18,6 +18,29 @@ extra flexibility afforded by our proposed methodology to investigate departures
 We implemented code for the following dwell durations: geometric (i.e. HMM), poisson, negative-binomial and the unstructured start geometric tail distribution (Sansom and Thomson, 2001). The probabilistic programming framework associated with stan makes it easy for practitioners to consider further dwell distributions to the ones considered here. Users need only to change the corresponding function in our stan files. Moreover, the stan modelling language implements compressed row storage sparse matrix representation and multiplication, which provides considerable speed up when the sparsity is greater than 90%.
 In our applied scenario we consider dwell-approximation thresholds as big as a = (150,10,10) with sparsity of greater than 98% allowing us to take considerable advantage of this formulation.
 
+## Bayesian Approximation to HSMM 
+
+```r
+K <- 3 # n states 
+m <- rep(5, K) # dwell threshold
+lambda.0 <- rep(10, K) # lambda initial value MCMC
+data.stan <- list(N = length(obs), K = K, y = obs,
+                  m = m,  mu_0 = rep(mean(obs), K), 
+                  sigma_0 = 2, a_0 = rep(0.01, K), b_0 = rep(0.01, K),
+                  alpha_0 = matrix(1, nrow = K, ncol = K-1))
+if ((K / sum(m) < 0.1)) {
+  stan_path <- "stan/bayesHSMMapprox_GaussEmis_PoissDur.stan"
+} else {
+  stan_path <- "stan/bayesHSMMapprox_GaussEmis_PoissDur_sparse.stan"
+}
+HSMM.stan <- stan(file = stan_path, data = data.stan, 
+                 init = function(){HSMM.init.stan(K, obs, lambda.0)}, 
+                 warmup = 1000, chains = 1, iter = (1+5)*1000, cores = 1, 
+                 control = list(adapt_delta=0.99,stepsize=0.01,max_treedepth = 20))
+print(HSMM.stan, probs = c(0.05, 0.95))
+```
+
+
 ## Identifying the Periodicity 
 
 We have also developed a (high-performance) software written  in  Julia  v1.6  to identify the frequency that drives the overall variation in the  time series. We ran  the  sampler  for  5000 iterations  which took around 3 seconds on an Intel®CoreTMi5 2 GHz Processor 16 GB RAM. An example of our implementation `case_study_frequency.jl` is given below, where we also highlight the visual output of our software: (left) the trace plot (after burn-in) of the posterior sample of the frequency, noting that the acceptance rate was 28%; (right) 20 draws from the posterior predictive distribution of the stationary periodic model, as well as the posterior mean of the oscillatory signal.
