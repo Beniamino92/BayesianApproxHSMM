@@ -20,7 +20,7 @@ In our applied scenario we consider dwell-approximation thresholds as big as a =
 
 ## Example - BayesApproxHSMM
 
-Here is an example for using our (stan) software in R.
+Here is an example for using our (stan) software in R from `tutorial.Rmd`.
 
 ```r
 K <- 3 # n states 
