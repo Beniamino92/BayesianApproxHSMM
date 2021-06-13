@@ -20,11 +20,11 @@ In our applied scenario we consider dwell-approximation thresholds as big as a =
 
 ```julia
 M = 1 # number of frequencies
-GibbsSamplerOscillatory(obs, M, N_MCMC, hyperparms; plt = true)
+GibbsSamplerOscillatory(activity, M, N_MCMC, hyperparms; plt = true)
 ```
 
 <p align="center">
-<img src="https://github.com/Beniamino92/BayesianApproxHSMM/blob/master/figures/posterior_freq.png" width="300" heigth="300"/> <img src="https://github.com/Beniamino92/BayesianApproxHSMM/blob/master/figures/posterior_pred_freq.png" width="300" heigth="300"/>
+<img src="https://github.com/Beniamino92/BayesianApproxHSMM/blob/master/figures/posterior_freq.png" width="400" heigth="400"/> <img src="https://github.com/Beniamino92/BayesianApproxHSMM/blob/master/figures/posterior_pred_freq.png" width="400" heigth="400"/>
 </p>
 
 
