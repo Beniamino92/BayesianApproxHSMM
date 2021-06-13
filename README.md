@@ -52,7 +52,7 @@ HSMM.predictive.plot(sims, obs, m, ndraw = 50)
 
 
 <p align="center">
-<img src="https://github.com/Beniamino92/BayesianApproxHSMM/blob/master/figures/example_postpred.png" width="800" heigth="500"/> 
+<img src="https://github.com/Beniamino92/BayesianApproxHSMM/blob/master/figures/example_postpred.png" width="750" heigth="400"/> 
 </p>
 
 
