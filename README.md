@@ -20,16 +20,16 @@ In our applied scenario we consider dwell-approximation thresholds as big as a =
 
 
 ## boh 1
-![GitHub Logo](/figures/posterior_pred_freq.png){:height="50%" width="50%"}
+![GitHub Logo](/figures/posterior_pred_freq.png)
 
 ## boh 2
-![alt text](/figures/posterior_pred_freq.png){:height="50%" width="50%"}
+![alt text](/figures/posterior_pred_freq.png)
 
 ## boh 3
-![plot](/figures/posterior_pred_freq.png){:height="10%" width="50%"}
+![plot](/figures/posterior_pred_freq.png)
 
 ## boh 4
-<img src="https://github.com/Beniamino92/BayesianApproxHSMM/blob/master/figures/posterior_pred_freq.png" width="100" height="100">
+<img src="https://github.com/Beniamino92/BayesianApproxHSMM/blob/master/figures/posterior_pred_freq.png" width="300" height="300">
 
 ### Contact Information and Acknowledgments
 
