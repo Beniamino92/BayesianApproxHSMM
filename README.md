@@ -19,25 +19,18 @@ We implemented code for the following dwell durations: geometric (i.e. HMM), poi
 In our applied scenario we consider dwell-approximation thresholds as big as a = (150,10,10) with sparsity of greater than 98% allowing us to take considerable advantage of this formulation.
 
 
-## boh 1
-![GitHub Logo](/figures/posterior_pred_freq.png)
+<!-- ## boh 1
+![GitHub Logo](/figures/posterior_pred_freq.png) -->
 
-## boh 2
-![alt text](/figures/posterior_pred_freq.png)
+<p align="center">
+<img src="https://github.com/Beniamino92/BayesianApproxHSMM/blob/master/figures/posterior_pred_freq.png" width="300" heigth="200"/> <img src="https://github.com/Beniamino92/BayesianApproxHSMM/blob/master/figures/posterior_freq.png" width="300" heigth="200/> 
+</p>
 
-## boh 3
-![plot](/figures/posterior_pred_freq.png)
-
-## boh 4
-<img src="https://github.com/Beniamino92/BayesianApproxHSMM/blob/master/figures/posterior_pred_freq.png" width="425" height="300">
 
 ### Contact Information and Acknowledgments
 
 BayesianApproxHSMM was developed by Beniamino Hadj-Amar (Beniamino.Hadj-Amar@rice.edu) and Jack Jewson (jack.jewson@barcelonagse.eu). 
 Parts of this software were adapted from "Hidden Markov Models for Time Series" (Zucchini et al., 2017) and  "Hidden Markov Models" (Stan User's Guide, Sec.2.6).
 
-<p align="center">
-<img src="https://github.com/Beniamino92/BayesianApproxHSMM/blob/master/figures/posterior_pred_freq.png" width="200"/> <img src="https://github.com/Beniamino92/BayesianApproxHSMM/blob/master/figures/posterior_freq.png" width="300"/> 
-</p>
 
 
