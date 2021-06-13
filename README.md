@@ -18,7 +18,9 @@ extra flexibility afforded by our proposed methodology to investigate departures
 We implemented code for the following dwell durations: geometric (i.e. HMM), poisson, negative-binomial and the unstructured start geometric tail distribution (Sansom and Thomson, 2001). The probabilistic programming framework associated with stan makes it easy for practitioners to consider further dwell distributions to the ones considered here. Users need only to change the corresponding function in our stan files. Moreover, the stan modelling language implements compressed row storage sparse matrix representation and multiplication, which provides considerable speed up when the sparsity is greater than 90%.
 In our applied scenario we consider dwell-approximation thresholds as big as a = (150,10,10) with sparsity of greater than 98% allowing us to take considerable advantage of this formulation.
 
-# A Julia Software: Identifying the Periodicity
+## Identifying the Periodicity. A Julia Software: 
+
+
 
 ```julia
 M = 1 # number of frequencies
