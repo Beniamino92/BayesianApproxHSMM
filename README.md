@@ -37,7 +37,6 @@ HSMM.stan <- stan(file = stan_path, data = data.stan,
                  init = function(){HSMM.init.stan(K, obs, lambda.0)}, 
                  warmup = 1000, chains = 1, iter = (1+5)*1000, cores = 1, 
                  control = list(adapt_delta=0.99,stepsize=0.01,max_treedepth = 20))
-print(HSMM.stan, probs = c(0.05, 0.95))
 ```
 
 
