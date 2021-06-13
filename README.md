@@ -20,7 +20,7 @@ In our applied scenario we consider dwell-approximation thresholds as big as a =
 
 ## Identifying the Periodicity 
 
-We have also developed a software to identify the frequency that drives the overall variation in the physical activity time series. We ran  the  sampler  for  5000  iterations  using  software  written  in  Julia  v1.6  which took around 3 seconds on an Intel®CoreTMi5 2 GHz Processor 16 GB RAM. Figure below  shows:  (left) the trace plot (after burn-in) of the posterior sample of the frequency (noting that the acceptance rate was 28%).  In Figure 9 (b) we display 20 draws from the posterior predictive distribution of the stationary periodic model, as well as theposterior mean of the oscillatory signal.
+We have also developed a software to identify the frequency that drives the overall variation in the physical activity time series. We ran  the  sampler  for  5000  iterations  using  software  written  in  Julia  v1.6  which took around 3 seconds on an Intel®CoreTMi5 2 GHz Processor 16 GB RAM. An example of using the code is given below as well as the visual output of our software: (left) the trace plot (after burn-in) of the posterior sample of the frequency (noting that the acceptance rate was 28%); (right 20 draws from the posterior predictive distribution of the stationary periodic model, as well as the posterior mean of the oscillatory signal.
 
 
 
