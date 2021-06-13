@@ -17,6 +17,10 @@ We implemented code for the following dwell durations: geometric (i.e. HMM), poi
 In our applied scenario we consider dwell-approximation thresholds as big as a = (150,10,10) with sparsity of greater than 98% allowing us to take considerable advantage of this formulation.
 
 
+// posterior predictive frequency
+![Test Image 1](figures/posterior_pred_freq.pdf)
+
+
 ### Contact Information and Acknowledgments
 
 BayesianApproxHSMM was developed by Beniamino Hadj-Amar (Beniamino.Hadj-Amar@rice.edu) and Jack Jewson (jack.jewson@barcelonagse.eu). 
