@@ -28,6 +28,7 @@ data.stan <- list(N = length(obs), K = K, y = obs,
                   m = m,  mu_0 = rep(mean(obs), K), 
                   sigma_0 = 2, a_0 = rep(0.01, K), b_0 = rep(0.01, K),
                   alpha_0 = matrix(1, nrow = K, ncol = K-1))
+
 if ((K / sum(m) < 0.1)) {
   stan_path <- "stan/bayesHSMMapprox_GaussEmis_PoissDur.stan"
 } else {
@@ -35,9 +36,9 @@ if ((K / sum(m) < 0.1)) {
 }
 
 HSMM.stan <- stan(file = stan_path, data = data.stan, 
-                  init = function(){HSMM.init.stan(K, obs, rep(10, K))}, 
-                  warmup = 1000, chains = 1, iter = (1+5)*1000, cores = 1, 
-                  control = list(adapt_delta=0.99, stepsize=0.01, max_treedepth = 20))
+                 init = function(){HSMM.init.stan(K, obs, rep(10, K))}, 
+                 warmup = 1000, chains = 1, iter = (1+5)*1000, cores = 1, 
+                 control = list(adapt_delta=0.99, stepsize=0.01, max_treedepth = 20))
 ```
 
 
