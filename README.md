@@ -20,7 +20,7 @@ In our applied scenario we consider dwell-approximation thresholds as big as a =
 
 
 ## Answer:
-![GitHub Logo](/figures/posterior_pred_freq.pdf)
+![GitHub Logo](/figures/posterior_pred_freq.png)
 
 
 ### Contact Information and Acknowledgments
