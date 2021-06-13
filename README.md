@@ -37,7 +37,7 @@ GibbsSamplerOscillatory(activity, M, N_MCMC, hyperparms; plt = true)
 ### Contact Information and Acknowledgments
 
 BayesianApproxHSMM was developed by Beniamino Hadj-Amar (Beniamino.Hadj-Amar@rice.edu) and Jack Jewson (jack.jewson@barcelonagse.eu). 
-Parts of this software were adapted from "Hidden Markov Models for Time Series" (Zucchini et al., 2017) and  "Hidden Markov Models" (Stan User's Guide, Sec.2.6).
+Parts of this software were adapted from "Hidden Markov Models for Time Series" (Zucchini et al., 2017), "Hidden Markov Models" (Stan User's Guide, Sec.2.6), "Bayesian Model Search for Nonstationary Periodic Time Series" (Hadj-Amar et al., 2019).
 
 
 
