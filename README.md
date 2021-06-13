@@ -48,7 +48,7 @@ We have also developed a (high-performance) software written  in  Julia  v1.6  t
 
 ```julia
 M = 1 # number of frequencies
-GibbsSamplerOscillatory(activity, M, N_MCMC, hyperparms; plt = true)
+GibbsSamplerOscillatory(obs, M, N_MCMC, hyperparms; plt = true)
 ```
 
 <p align="center">
