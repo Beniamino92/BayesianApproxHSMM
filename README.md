@@ -1,10 +1,10 @@
 # BayesianApproxHSMM
 
-BayesianApproxHSMM contains the stan software (as well as R utilities) to model time series and sequential data using a  Bayesian  HMM that is a reformulation of any given HSMM as detailed in "Bayesian Approximations to Hidden Semi-Markov Models for Telemetric Monitoring of Physical Activity" (2022) by B.Hadj-Amar, J.Jewson, M.Fiecas. The article and supplemental material can be found at https://www.researchgate.net/publication/342200521_Bayesian_Approximations_to_Hidden_Semi-Markov_Models
+BayesianApproxHSMM contains the stan software (as well as R utilities) to model time series and sequential data using a  Bayesian  HMM that is a reformulation of any given HSMM as detailed in "Bayesian Approximations to Hidden Semi-Markov Models for Telemetric Monitoring of Physical Activity" (2022) by B.Hadj-Amar, J.Jewson, M.Fiecas. The article and supplemental material can be found at https://arxiv.org/pdf/2006.09061.pdf
 
 * Main Inference Scripts:
 ```
-tutorial.Rmd, case_study.Rmd
+tutorial.Rmd, case_study.Rmd, case_study_frequency.jl
 ```
 
 
